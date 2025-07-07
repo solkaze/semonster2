@@ -7,8 +7,59 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class AppTest {
-    @Test public void appHasAGreeting() {
-        App classUnderTest = new App();
-        assertNotNull("app should have a greeting", classUnderTest.getGreeting());
+    // @Test public void appHasAGreeting() {
+    // App classUnderTest = new App();
+    // assertNotNull("app should have a greeting", classUnderTest.getGreeting());
+    // }
+
+    @Test
+    public void testSlimeAndPlayerBattle() {
+        Slime slime = new Slime();
+        Player player = new Player(100, "勇者", 10);
+        int attack = player.attack();
+        boolean defeated = slime.damage(attack);
+        assertTrue(slime.getHp() <= 10);
+        if (defeated) {
+            assertEquals(0, slime.getHp());
+        } else {
+            assertTrue(slime.getHp() > 0);
+        }
+    }
+
+    @Test
+    public void testPlayerAddAndUsePotion() {
+        Player player = new Player(50, "勇者", 10);
+        Potion potion = new Potion("回復薬", 100, "HP回復", 30);
+        assertTrue(player.addItem(potion));
+        assertTrue(player.useItem(potion));
+        assertEquals(80, player.getHp());
+    }
+
+    @Test
+    public void testPlayerAddAndUseSword() {
+        Player player = new Player(100, "勇者", 10);
+        Sword sword = new Sword("剣", 200, "攻撃力アップ", 20);
+        assertTrue(player.addItem(sword));
+        assertTrue(player.useItem(sword));
+        int atk = player.attack();
+        assertTrue(atk >= 30 && atk <= 31);
+    }
+
+    @Test
+    public void testItemLimit() {
+        Player player = new Player();
+        for (int i = 0; i < 10; i++) {
+            assertTrue(player.addItem(new Potion("p" + i, 10, "", 1)));
+        }
+        assertFalse(player.addItem(new Potion("p10", 10, "", 1)));
+    }
+
+    @Test
+    public void testRemoveItem() {
+        Player player = new Player();
+        Potion potion = new Potion("p", 10, "", 1);
+        player.addItem(potion);
+        assertTrue(player.useItem(potion));
+        assertFalse(player.useItem(potion));
     }
 }
