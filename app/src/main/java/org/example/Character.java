@@ -1,32 +1,28 @@
-package app.src.main.java.org.example;
+package org.example;
 
 import java.util.Random;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class Character {
     private int hp;
     private String name;
     private int power;
-    private Random rand;
-    private ArrayList<Item> items;
+    protected Random rand;
+    protected ArrayList<Item> items;
     private static final int MAX_HP = 1000;
     private static final int MAX_POWER = 500;
     private static final int MAX_ITEM_COUNT = 10;
 
     Character() {
-        this.hp = 100;
-        this.name = "Monster";
-        this.power = 20;
-        // アイテムは空にする
-        this.items = new ArrayList<Item>();
-        this.rand = new Random();
+        this(100, "Monster", 20);
     }
 
     Character(int hp, String name, int power) {
         this.hp = hp;
         this.name = name;
         this.power = power;
+        this.items = new ArrayList<>();
+        this.rand = new Random();
     }
 
     public int getHp() {
