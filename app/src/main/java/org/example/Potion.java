@@ -1,3 +1,4 @@
+package app.src.main.java.org.example;
 public class Potion extends Item {
     private int healAmount;
 

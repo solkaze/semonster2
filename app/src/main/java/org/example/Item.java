@@ -1,3 +1,4 @@
+package app.src.main.java.org.example;
 public class Item {
     private String name;
     private int value;
