@@ -6,8 +6,8 @@ public class Character {
     private int hp;
     private String name;
     private int power;
-    private Random rand = new Random();
-    private ArrayList<Item> items = new ArrayList<Item>();
+    private Random rand;
+    private ArrayList<Item> items;
     private static final int MAX_HP = 1000;
     private static final int MAX_POWER = 500;
     private static final int MAX_ITEM_COUNT = 10;
@@ -18,6 +18,7 @@ public class Character {
         this.power = 20;
         // アイテムは空にする
         this.items = new ArrayList<Item>();
+        this.rand = new Random();
     }
 
     Character(int hp, String name, int power) {
@@ -93,12 +94,21 @@ public class Character {
     }
 
     public int attack() {
-        int tmp = power + rand.nextInt(-2, 2);
+        int tmp = power + rand.nextInt(2);
         if (tmp < 0) {
             return 0;
-        } else {
-            return tmp;
+        } else {            return tmp;
         }
     }
 
+    public boolean damage(int damage) {
+        hp -= damage;
+        if (hp <= 0) {
+            hp = 0;
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
 }
