@@ -23,5 +23,5 @@ public class Sword extends Item {
                 ", attackPower=" + attackPower +
                 '}';
     }
-    
+
 }

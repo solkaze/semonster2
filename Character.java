@@ -97,7 +97,8 @@ public class Character {
         int tmp = power + rand.nextInt(2);
         if (tmp < 0) {
             return 0;
-        } else {            return tmp;
+        } else {
+            return tmp;
         }
     }
 
@@ -110,5 +111,5 @@ public class Character {
             return false;
         }
     }
-    
+
 }
