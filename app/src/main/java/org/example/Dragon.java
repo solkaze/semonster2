@@ -18,4 +18,12 @@ public class Dragon extends Character {
         }
     }
     // 火炎攻撃などの特殊行動は後で追加可能
+
+    public int getExpReward() {
+        return 40;
+    }
+
+    public int getGoldReward() {
+        return 100;
+    }
 }

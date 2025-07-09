@@ -18,4 +18,12 @@ public class Wizard extends Character {
         }
     }
     // 魔法攻撃や状態異常付与は後で追加可能
+
+    public int getExpReward() {
+        return 25;
+    }
+
+    public int getGoldReward() {
+        return 50;
+    }
 }

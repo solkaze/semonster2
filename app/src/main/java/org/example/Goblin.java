@@ -16,5 +16,13 @@ public class Goblin extends Character {
             System.out.println("ゴブリンがあなたの" + stolen.getName() + "を盗んだ！");
         }
     }
+
     // たまにアイテムを盗むなどの特殊行動は後で追加可能
+    public int getExpReward() {
+        return 8;
+    }
+
+    public int getGoldReward() {
+        return 15;
+    }
 }
