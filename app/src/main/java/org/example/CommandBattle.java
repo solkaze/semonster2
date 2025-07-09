@@ -412,4 +412,8 @@ public class CommandBattle {
             }
         }
     }
+
+    public Player getPlayer() {
+        return player;
+    }
 }
