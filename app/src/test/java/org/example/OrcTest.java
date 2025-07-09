@@ -24,8 +24,10 @@ public class OrcTest {
         for (int i = 0; i < 30; i++) {
             p.setHp(before);
             o.performSpecialAction(p, cb, 5);
-            if (p.getHp() < before - 5) twoAttack = true; // 2回攻撃
-            if (p.getHp() == before - 5) normal = true;    // 通常攻撃
+            if (p.getHp() < before - 5)
+                twoAttack = true; // 2回攻撃
+            if (p.getHp() == before - 5)
+                normal = true; // 通常攻撃
         }
         assertTrue(twoAttack);
         assertTrue(normal);

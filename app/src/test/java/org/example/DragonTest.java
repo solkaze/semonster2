@@ -36,9 +36,12 @@ public class DragonTest {
             p.setHp(before);
             cb.setBurned(false);
             d.performSpecialAction(p, cb, 5);
-            if (p.getHp() < before) fireHit = true;
-            if (cb.isBurned()) burned = true;
-            if (p.getHp() == before && !cb.isBurned()) normal = true;
+            if (p.getHp() < before)
+                fireHit = true;
+            if (cb.isBurned())
+                burned = true;
+            if (p.getHp() == before && !cb.isBurned())
+                normal = true;
         }
         assertTrue(fireHit);
         assertTrue(burned);

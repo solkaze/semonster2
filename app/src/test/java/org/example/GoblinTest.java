@@ -34,11 +34,14 @@ public class GoblinTest {
         boolean stolen = false;
         boolean normal = false;
         for (int i = 0; i < 30; i++) {
-            if (items.isEmpty()) items.add(new Potion("p", 10, "", 1));
+            if (items.isEmpty())
+                items.add(new Potion("p", 10, "", 1));
             int before = items.size();
             g.performSpecialAction(p, cb, 5);
-            if (items.size() < before) stolen = true;
-            if (items.size() == before) normal = true;
+            if (items.size() < before)
+                stolen = true;
+            if (items.size() == before)
+                normal = true;
         }
         assertTrue(stolen);
         assertTrue(normal);

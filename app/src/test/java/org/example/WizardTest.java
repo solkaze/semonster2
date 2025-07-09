@@ -37,9 +37,12 @@ public class WizardTest {
             p.setHp(before); // HPリセット
             cb.setConfuseTurns(0);
             w.performSpecialAction(p, cb, 5);
-            if (p.getHp() < before) magicHit = true;
-            if (cb.getConfuseTurns() > 0) confused = true;
-            if (p.getHp() == before && cb.getConfuseTurns() == 0) normal = true;
+            if (p.getHp() < before)
+                magicHit = true;
+            if (cb.getConfuseTurns() > 0)
+                confused = true;
+            if (p.getHp() == before && cb.getConfuseTurns() == 0)
+                normal = true;
         }
         assertTrue(magicHit);
         assertTrue(confused);
