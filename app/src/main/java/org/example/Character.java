@@ -2,12 +2,14 @@ package org.example;
 
 import java.util.Random;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Character {
     private int hp;
     private String name;
     private int power;
     protected Random rand;
+    // 今後の拡張用。現状はuseItemでのみ利用
     protected ArrayList<Item> items;
     private static final int MAX_HP = 1000;
     private static final int MAX_POWER = 500;
@@ -61,33 +63,62 @@ public class Character {
     }
 
     public boolean useItem(Item item) {
-        // アイテムが存在するか確認
         if (items.contains(item)) {
-            // アイテムの種類に応じて処理を分岐
             if (item instanceof Potion) {
                 Potion potion = (Potion) item;
-                // ポーションの効果を適用
                 int healAmount = potion.getHealAmount();
                 hp += healAmount;
-                if (hp > MAX_HP) {
-                    hp = MAX_HP; // 最大HPを超えないようにする
-                }
-                removeItem(item); // アイテムを使用したので削除
-                return true; // 使用成功
+                if (hp > MAX_HP)
+                    hp = MAX_HP;
+                removeItem(item);
+                return true;
             } else if (item instanceof Sword) {
                 Sword sword = (Sword) item;
-                // 剣の効果を適用（例: 攻撃力を上げる）
                 power += sword.getAttackPower();
-                if (power > MAX_POWER) {
-                    power = MAX_POWER; // 最大攻撃力を超えないようにする
-                }
-                removeItem(item); // アイテムを使用したので削除
-                return true; // 使用成功
+                if (power > MAX_POWER)
+                    power = MAX_POWER;
+                removeItem(item);
+                return true;
+            } else if (item instanceof Shield) {
+                // シールドの効果例: HP小回復
+                hp += 5;
+                if (hp > MAX_HP)
+                    hp = MAX_HP;
+                removeItem(item);
+                return true;
+            } else if (item instanceof MagicWand) {
+                MagicWand wand = (MagicWand) item;
+                power += wand.getMagicPower();
+                if (power > MAX_POWER)
+                    power = MAX_POWER;
+                removeItem(item);
+                return true;
+            } else if (item instanceof Bow) {
+                Bow bow = (Bow) item;
+                power += bow.getAccuracy();
+                if (power > MAX_POWER)
+                    power = MAX_POWER;
+                removeItem(item);
+                return true;
+            } else if (item instanceof Armor) {
+                Armor armor = (Armor) item;
+                hp += armor.getHpBoost();
+                if (hp > MAX_HP)
+                    hp = MAX_HP;
+                removeItem(item);
+                return true;
+            } else if (item instanceof Ring) {
+                // リングの効果例: HP自動回復
+                hp += 10;
+                if (hp > MAX_HP)
+                    hp = MAX_HP;
+                removeItem(item);
+                return true;
             } else {
-                return false; // 未対応のアイテムタイプ
+                return false;
             }
         } else {
-            return false; // アイテムが存在しない
+            return false;
         }
     }
 
@@ -108,6 +139,11 @@ public class Character {
         } else {
             return false;
         }
+    }
+
+    // プレイヤーやアイテムリストを受け取って特殊行動を行う（デフォルトは何もしない）
+    public void specialAction(Player player, List<Item> inventory) {
+        // 何もしない
     }
 
 }
