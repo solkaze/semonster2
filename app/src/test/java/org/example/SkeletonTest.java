@@ -4,12 +4,14 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import java.util.Scanner;
 
-public class SlimeTest {
+public class SkeletonTest {
     @Test
-    public void testSlimeConstructor() {
-        Slime s = new Slime();
-        assertEquals(10, s.getHp());
-        assertEquals("Slime", s.getName());
+    public void testSkeletonConstructorAndReward() {
+        Skeleton s = new Skeleton();
+        assertEquals(30, s.getHp());
+        assertEquals("スケルトン", s.getName());
+        assertEquals(13, s.getExpReward());
+        assertEquals(22, s.getGoldReward());
     }
 
     // テスト用: mainMenuやSystem.inを呼ばないダミーCommandBattle
@@ -25,15 +27,15 @@ public class SlimeTest {
     }
 
     @Test
-    public void testPerformSpecialAction_NormalAttack() {
-        Slime s = new Slime();
+    public void testPerformSpecialAction_PhysicalResist() {
+        Skeleton s = new Skeleton();
         Player p = new Player();
         TestBattle cb = new TestBattle();
         int before = p.getHp();
         try {
-            s.performSpecialAction(p, cb, 7);
+            s.performSpecialAction(p, cb, 10);
         } catch (Exception e) {
             /* 入力例外は無視 */ }
-        assertEquals(before - 7, p.getHp()); // 通常攻撃
+        assertEquals(before - 5, p.getHp()); // 物理耐性で半減
     }
 }

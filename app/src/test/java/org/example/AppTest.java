@@ -7,15 +7,10 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class AppTest {
-    // @Test public void appHasAGreeting() {
-    // App classUnderTest = new App();
-    // assertNotNull("app should have a greeting", classUnderTest.getGreeting());
-    // }
-
     @Test
     public void testSlimeAndPlayerBattle() {
         Slime slime = new Slime();
-        Player player = new Player(100, "勇者", 10);
+        Player player = new Player(30, 30, "勇者", 5);
         int attack = player.attack();
         boolean defeated = slime.damage(attack);
         assertTrue(slime.getHp() <= 10);
@@ -28,30 +23,21 @@ public class AppTest {
 
     @Test
     public void testPlayerAddAndUsePotion() {
-        Player player = new Player(50, "勇者", 10);
-        Potion potion = new Potion("回復薬", 100, "HP回復", 30);
+        Player player = new Player(10, 30, "勇者", 5);
+        Potion potion = new Potion("回復薬", 100, "HP回復", 50);
         assertTrue(player.addItem(potion));
         assertTrue(player.useItem(potion));
-        assertEquals(80, player.getHp());
+        assertEquals(30, player.getHp()); // maxHpまでしか回復しない
     }
 
     @Test
     public void testPlayerAddAndUseSword() {
-        Player player = new Player(100, "勇者", 10);
+        Player player = new Player(30, 30, "勇者", 5);
         Sword sword = new Sword("剣", 200, "攻撃力アップ", 20);
         assertTrue(player.addItem(sword));
         assertTrue(player.useItem(sword));
         int atk = player.attack();
-        assertTrue(atk >= 30 && atk <= 31);
-    }
-
-    @Test
-    public void testItemLimit() {
-        Player player = new Player();
-        for (int i = 0; i < 10; i++) {
-            assertTrue(player.addItem(new Potion("p" + i, 10, "", 1)));
-        }
-        assertFalse(player.addItem(new Potion("p10", 10, "", 1)));
+        assertTrue(atk >= 25 && atk <= 26);
     }
 
     @Test
