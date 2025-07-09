@@ -3,6 +3,7 @@ package org.example;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Character {
     protected int hp;
@@ -54,6 +55,10 @@ public class Character {
 
     public int getLevel() {
         return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
     }
 
     public int getExp() {
@@ -186,6 +191,34 @@ public class Character {
     // プレイヤーやアイテムリストを受け取って特殊行動を行う（デフォルトは何もしない）
     public void specialAction(Player player, List<Item> inventory) {
         // 何もしない
+    }
+
+    // プレイヤーやバトル状況を受け取って特殊行動を行う（デフォルトは何もしない）
+    public void performSpecialAction(Player player, CommandBattle battle, int baseDamage) {
+        // デフォルトは通常攻撃のみ
+        if (baseDamage < 0)
+            baseDamage = 0;
+        System.out.println(getName() + "の攻撃！ あなたに" + baseDamage + "ダメージ！");
+        if (player.damage(baseDamage)) {
+            System.out.println("あなたは倒れてしまった... ゲームオーバー！");
+            System.out.println("1. タイトルに戻る  2. 終了");
+            String retryInput = battle.getScanner().nextLine();
+            if (retryInput.equals("1")) {
+                player.setHp(player.getMaxHp());
+                battle.mainMenu();
+            } else {
+                System.out.println("ゲームを終了します。");
+                System.exit(0);
+            }
+        }
+    }
+
+    // Scanner取得用（特殊行動のため）
+    public Scanner getScanner() {
+        // CommandBattleのscannerを返すためのダミー。実際はCommandBattle側でpublic Scanner
+        // scanner;にするか、getterを用意する。
+        // ここではCommandBattleにpublic Scanner getScanner()を追加する前提で呼び出し。
+        return null;
     }
 
 }

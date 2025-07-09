@@ -9,6 +9,13 @@ public class CommandBattle {
     private Item equippedWeapon;
     private Item equippedArmor;
 
+    // 状態異常・バフ管理
+    private boolean isDefending = false;
+    private boolean isBurned = false;
+    private int confuseTurns = 0;
+    // 攻撃力バフ（チャージ）管理用
+    private boolean charged = false;
+
     public CommandBattle() {
         this.player = new Player(30, 30, "勇者", 5);
         this.scanner = new Scanner(System.in);
@@ -56,20 +63,49 @@ public class CommandBattle {
     }
 
     private void startBattle() {
-        Character enemy = randomEnemy();
+        Character enemy = randomEnemyScaled();
+        int enemyLevel = enemy.getLevel();
         System.out.println("\n=== バトル開始！ ===");
         System.out.println("あなた: Lv." + player.getLevel() + " HP: " + player.getHp() + "/" + player.getMaxHp()
                 + " EXP: " + player.getExp() + "/" + player.getNextExp());
         System.out.println(
-                "敵: " + enemy.getName() + " Lv." + enemy.getLevel() + " HP: " + enemy.getHp() + "/" + enemy.getMaxHp());
+                "敵: " + enemy.getName() + " Lv." + enemyLevel + " HP: " + enemy.getHp() + "/" + enemy.getMaxHp());
+        isDefending = false;
+        isBurned = false;
+        confuseTurns = 0;
+        charged = false;
         while (player.getHp() > 0 && enemy.getHp() > 0) {
-            System.out.println("\nあなたのHP: " + player.getHp() + "  " + enemy.getName() + "のHP: " + enemy.getHp());
-            System.out.println("コマンド: 1.攻撃 2.回復 3.スキル 4.逃げる");
+            // 状態異常・バフ表示
+            String status = "";
+            if (isDefending)
+                status += "[防御中] ";
+            if (isBurned)
+                status += "[やけど] ";
+            if (confuseTurns > 0)
+                status += "[混乱] ";
+            if (charged)
+                status += "[攻撃力UP(1回)] ";
+            System.out.println(
+                    "\nあなたのHP: " + player.getHp() + "  " + enemy.getName() + "のHP: " + enemy.getHp() + " " + status);
+            System.out.println("コマンド: 1.攻撃 2.回復 3.スキル 4.逃げる 5.防御 6.アイテム 7.装備変更");
             System.out.println("[Lv." + player.getLevel() + "] EXP: " + player.getExp() + "/" + player.getNextExp());
             String input = scanner.nextLine();
             switch (input) {
                 case "1":
-                    int damage = player.attack() + getWeaponPower();
+                    if (confuseTurns > 0 && new Random().nextInt(2) == 0) {
+                        System.out.println("混乱して自分を攻撃してしまった！");
+                        player.damage(player.attack());
+                        confuseTurns--;
+                        break;
+                    }
+                    int baseAttack = player.attack() + getWeaponPower();
+                    int damage = charged ? baseAttack * 2 : baseAttack;
+                    if (charged) {
+                        System.out.println("チャージ攻撃！攻撃力2倍！");
+                        charged = false;
+                    }
+                    if (enemy instanceof Skeleton)
+                        damage /= 2; // スケルトンは物理耐性
                     System.out.println("あなたの攻撃！ " + enemy.getName() + "に" + damage + "ダメージ！");
                     if (enemy.damage(damage)) {
                         System.out.println(enemy.getName() + "を倒した！");
@@ -78,24 +114,24 @@ public class CommandBattle {
                     }
                     break;
                 case "2":
-                    // 持っている回復薬を探して使う
-                    Optional<ItemStack> potionStackOpt = inventory.stream()
-                            .filter(s -> s.item instanceof Potion && s.count > 0).findFirst();
-                    if (potionStackOpt.isPresent()) {
-                        ItemStack potionStack = potionStackOpt.get();
-                        if (player.useItem(potionStack.item)) {
-                            potionStack.count--;
-                            System.out.println("回復薬を使った！ HPが20回復した。");
-                            if (potionStack.count == 0)
-                                inventory.remove(potionStack);
-                        } else {
-                            System.out.println("回復薬が使えませんでした。");
-                        }
-                    } else {
-                        System.out.println("回復薬がありません。");
-                    }
+                    useBattlePotion();
                     break;
                 case "3":
+                    if (confuseTurns > 0) {
+                        System.out.println("混乱してスキルが使えない！（残り" + confuseTurns + "ターン）");
+                        confuseTurns--;
+                        break;
+                    }
+                    System.out.println("スキルを選択してください: 1. 必殺斬り(2倍攻撃) 2. チャージ(次ターン攻撃力UP) 0. キャンセル");
+                    String skillInput = scanner.nextLine();
+                    if ("2".equals(skillInput)) {
+                        System.out.println("力を溜めた！次の攻撃力が2倍になる");
+                        charged = true;
+                        break;
+                    } else if ("0".equals(skillInput)) {
+                        System.out.println("スキル使用をキャンセルしました。");
+                        break;
+                    }
                     int skillDamage = (player.attack() + getWeaponPower()) * 2;
                     System.out.println("必殺技発動！ " + enemy.getName() + "に" + skillDamage + "ダメージ！（クールダウン1ターン）");
                     if (enemy.damage(skillDamage)) {
@@ -103,10 +139,12 @@ public class CommandBattle {
                         reward(enemy);
                         return;
                     }
-                    System.out.println("あなたは疲れて次のターン行動できない...");
+                    System.out.println("あなたは疲れて次のターン行動できない...（スキルの反動）");
                     for (int i = 0; i < 2; i++) {
                         if (enemy.getHp() > 0) {
                             int enemyDamage = enemy.attack() - getArmorDefense();
+                            if (isDefending)
+                                enemyDamage /= 2;
                             if (enemyDamage < 0)
                                 enemyDamage = 0;
                             System.out.println(enemy.getName() + "の攻撃！ あなたに" + enemyDamage + "ダメージ！");
@@ -124,34 +162,52 @@ public class CommandBattle {
                             }
                         }
                     }
-                    continue;
+                    break;
                 case "4":
                     System.out.println("逃げた！");
                     return;
+                case "5":
+                    isDefending = true;
+                    System.out.println("防御の体勢をとった！次の敵の攻撃ダメージ半減");
+                    break;
+                case "6":
+                    // アイテム使用（回復薬のみ実装例）
+                    useBattlePotion();
+                    break;
+                case "7":
+                    changeEquipment();
+                    break;
                 default:
                     System.out.println("無効なコマンドです。");
             }
             // 敵のターン
             if (enemy.getHp() > 0) {
                 int enemyDamage = enemy.attack() - getArmorDefense();
-                if (enemyDamage < 0)
-                    enemyDamage = 0;
-                System.out.println(enemy.getName() + "の攻撃！ あなたに" + enemyDamage + "ダメージ！");
-                if (player.damage(enemyDamage)) {
-                    System.out.println("あなたは倒れてしまった... ゲームオーバー！");
-                    System.out.println("1. タイトルに戻る  2. 終了");
-                    String retryInput = scanner.nextLine();
-                    if (retryInput.equals("1")) {
-                        player.setHp(player.getMaxHp());
-                        mainMenu();
-                    } else {
-                        System.out.println("ゲームを終了します。");
-                        System.exit(0);
-                    }
+                if (isDefending)
+                    enemyDamage /= 2;
+                // 特殊行動・特殊表示はキャラクラス側に委譲
+                enemy.performSpecialAction(player, this, enemyDamage);
+                if (isBurned) {
+                    player.damage(2);
+                    System.out.println("やけどでHPが2減った！");
                 }
+                isDefending = false;
             }
         }
         System.out.println("=== バトル終了 ===");
+    }
+
+    // プレイヤーレベルに応じて敵をスケーリング
+    private Character randomEnemyScaled() {
+        Character base = randomEnemy();
+        int plv = player.getLevel();
+        int elv = Math.max(1, plv + new Random().nextInt(2) - 1); // ±1レベル幅
+        base.setLevel(elv);
+        int hp = base.getMaxHp() + (elv - 1) * 5;
+        base.setHp(hp);
+        base.setMaxHp(hp);
+        // 攻撃力はpowerフィールドがprivateのためattack()で近似
+        return base;
     }
 
     private void equipmentMenu() {
@@ -413,7 +469,56 @@ public class CommandBattle {
         }
     }
 
+    // バトル中の回復薬使用処理
+    private void useBattlePotion() {
+        // 回復薬を所持しているか確認
+        for (ItemStack stack : inventory) {
+            if (stack.item instanceof Potion && stack.count > 0) {
+                Potion potion = (Potion) stack.item;
+                int heal = potion.getHealAmount();
+                int before = player.getHp();
+                player.setHp(Math.min(player.getHp() + heal, player.getMaxHp()));
+                stack.count--;
+                System.out.println("回復薬を使った！HPが" + (player.getHp() - before) + "回復（" + player.getHp() + "/"
+                        + player.getMaxHp() + ")");
+                if (stack.count == 0)
+                    inventory.remove(stack);
+                return;
+            }
+        }
+        System.out.println("回復薬を持っていません。");
+    }
+
+    // Goblinの特殊行動からアクセスできるようにpublicにする
+    public List<Item> getInventoryItems() {
+        List<Item> items = new ArrayList<>();
+        for (ItemStack stack : inventory) {
+            items.add(stack.item);
+        }
+        return items;
+    }
+
     public Player getPlayer() {
         return player;
+    }
+
+    // Scanner取得用
+    public Scanner getScanner() {
+        return scanner;
+    }
+
+    // やけど状態の制御用
+    public void setBurned(boolean burned) {
+        this.isBurned = burned;
+    }
+
+    // 混乱状態の制御用
+    public void setConfuseTurns(int turns) {
+        this.confuseTurns = turns;
+    }
+
+    // 防御状態の制御用
+    public boolean isDefending() {
+        return isDefending;
     }
 }
