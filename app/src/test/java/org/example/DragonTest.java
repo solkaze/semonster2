@@ -22,4 +22,26 @@ public class DragonTest {
         d.specialAction(p, new ArrayList<>());
         assertTrue(p.getHp() <= before);
     }
+
+    @Test
+    public void testPerformSpecialAction_FireOrBurnOrNormal() {
+        Dragon d = new Dragon();
+        Player p = new Player();
+        CommandBattle cb = new CommandBattle();
+        int before = p.getHp();
+        boolean fireHit = false;
+        boolean burned = false;
+        boolean normal = false;
+        for (int i = 0; i < 30; i++) {
+            p.setHp(before);
+            cb.setBurned(false);
+            d.performSpecialAction(p, cb, 5);
+            if (p.getHp() < before) fireHit = true;
+            if (cb.isBurned()) burned = true;
+            if (p.getHp() == before && !cb.isBurned()) normal = true;
+        }
+        assertTrue(fireHit);
+        assertTrue(burned);
+        assertTrue(normal);
+    }
 }

@@ -22,4 +22,27 @@ public class WizardTest {
         w.specialAction(p, new ArrayList<>());
         assertTrue(p.getHp() <= before);
     }
+
+    @Test
+    public void testPerformSpecialAction_MagicOrConfuseOrNormal() {
+        Wizard w = new Wizard();
+        Player p = new Player();
+        CommandBattle cb = new CommandBattle();
+        int before = p.getHp();
+        // 何度か繰り返して魔法攻撃・混乱・通常攻撃のいずれかが発生することを確認
+        boolean magicHit = false;
+        boolean confused = false;
+        boolean normal = false;
+        for (int i = 0; i < 30; i++) {
+            p.setHp(before); // HPリセット
+            cb.setConfuseTurns(0);
+            w.performSpecialAction(p, cb, 5);
+            if (p.getHp() < before) magicHit = true;
+            if (cb.getConfuseTurns() > 0) confused = true;
+            if (p.getHp() == before && cb.getConfuseTurns() == 0) normal = true;
+        }
+        assertTrue(magicHit);
+        assertTrue(confused);
+        assertTrue(normal);
+    }
 }

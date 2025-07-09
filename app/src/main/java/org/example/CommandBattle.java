@@ -521,4 +521,14 @@ public class CommandBattle {
     public boolean isDefending() {
         return isDefending;
     }
+
+    // 混乱状態の取得
+    public int getConfuseTurns() {
+        return confuseTurns;
+    }
+
+    // やけど状態の取得
+    public boolean isBurned() {
+        return isBurned;
+    }
 }
