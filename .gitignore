@@ -1,6 +1,44 @@
-
 # Ignore Gradle project-specific cache directory
 .gradle
 
 # Ignore Gradle build output directory
 build
+
+# Java class files
+*.class
+
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# VS Code
+.vscode/
+
+# Mac
+.DS_Store
+
+# Logs
+*.log
+
+# Package distribution
+*.jar
+*.war
+*.ear
+
+# Test results
+/test-results/
+/reports/
+
+# Temporary files
+*.tmp
+*.swp
+*~
+
+# Generated files
+bin/
