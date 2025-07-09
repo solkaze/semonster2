@@ -5,26 +5,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Character {
-    private int hp;
+    protected int hp;
+    protected int maxHp; // 最大体力
     private String name;
     private int power;
     protected Random rand;
     // 今後の拡張用。現状はuseItemでのみ利用
     protected ArrayList<Item> items;
-    private static final int MAX_HP = 1000;
-    private static final int MAX_POWER = 500;
-    private static final int MAX_ITEM_COUNT = 10;
+    protected int exp = 0; // 経験値
+    protected int nextExp = 10; // 次のレベルまでの経験値
+    protected int level = 1;
 
     Character() {
-        this(100, "Monster", 20);
+        this(20, 20, "Monster", 5);
     }
 
-    Character(int hp, String name, int power) {
+    Character(int hp, int maxHp, String name, int power) {
         this.hp = hp;
+        this.maxHp = maxHp;
         this.name = name;
         this.power = power;
         this.items = new ArrayList<>();
         this.rand = new Random();
+    }
+
+    // 旧コンストラクタ互換
+    Character(int hp, String name, int power) {
+        this(hp, hp, name, power);
     }
 
     public int getHp() {
@@ -32,7 +39,52 @@ public class Character {
     }
 
     public void setHp(int hp) {
-        this.hp = hp;
+        this.hp = Math.min(hp, maxHp);
+    }
+
+    public int getMaxHp() {
+        return maxHp;
+    }
+
+    public void setMaxHp(int maxHp) {
+        this.maxHp = maxHp;
+        if (hp > maxHp)
+            hp = maxHp;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public int getExp() {
+        return exp;
+    }
+
+    public int getNextExp() {
+        return nextExp;
+    }
+
+    public void gainExp(int amount) {
+        this.exp += amount;
+        while (exp >= nextExp) {
+            exp -= nextExp;
+            levelUp();
+        }
+    }
+
+    protected void levelUp() {
+        level++;
+        int hpIncrease = 5 + rand.nextInt(6); // 5~10増加
+        maxHp += hpIncrease;
+        hp = maxHp; // レベルアップ時は全回復
+        nextExp = (int) (nextExp * 1.5 + 5); // 次の必要経験値増加
+        // レベルアップ演出
+        System.out.println("\n==============================");
+        System.out.println("  ★★★ LEVEL UP!! ★★★");
+        System.out.println("    \u2605 Lv." + level + "  最大HP+" + hpIncrease + " \u2605");
+        System.out.println("==============================");
+        System.out.println("新たな力がみなぎる！ HPが全回復した！");
+        System.out.println();
     }
 
     public String getName() {
@@ -45,12 +97,8 @@ public class Character {
 
     // アイテムの追加に成功したらtrueを返す
     public boolean addItem(Item item) {
-        if (items.size() < MAX_ITEM_COUNT) {
-            items.add(item);
-            return true;
-        } else {
-            return false; // アイテムの数が上限に達している
-        }
+        items.add(item);
+        return true;
     }
 
     private boolean removeItem(Item item) {
@@ -68,50 +116,44 @@ public class Character {
                 Potion potion = (Potion) item;
                 int healAmount = potion.getHealAmount();
                 hp += healAmount;
-                if (hp > MAX_HP)
-                    hp = MAX_HP;
+                if (hp > maxHp)
+                    hp = maxHp;
                 removeItem(item);
                 return true;
             } else if (item instanceof Sword) {
                 Sword sword = (Sword) item;
                 power += sword.getAttackPower();
-                if (power > MAX_POWER)
-                    power = MAX_POWER;
                 removeItem(item);
                 return true;
             } else if (item instanceof Shield) {
                 // シールドの効果例: HP小回復
                 hp += 5;
-                if (hp > MAX_HP)
-                    hp = MAX_HP;
+                if (hp > maxHp)
+                    hp = maxHp;
                 removeItem(item);
                 return true;
             } else if (item instanceof MagicWand) {
                 MagicWand wand = (MagicWand) item;
                 power += wand.getMagicPower();
-                if (power > MAX_POWER)
-                    power = MAX_POWER;
                 removeItem(item);
                 return true;
             } else if (item instanceof Bow) {
                 Bow bow = (Bow) item;
                 power += bow.getAccuracy();
-                if (power > MAX_POWER)
-                    power = MAX_POWER;
                 removeItem(item);
                 return true;
             } else if (item instanceof Armor) {
                 Armor armor = (Armor) item;
                 hp += armor.getHpBoost();
-                if (hp > MAX_HP)
-                    hp = MAX_HP;
+                if (hp > maxHp)
+                    hp = maxHp;
                 removeItem(item);
                 return true;
             } else if (item instanceof Ring) {
                 // リングの効果例: HP自動回復
                 hp += 10;
-                if (hp > MAX_HP)
-                    hp = MAX_HP;
+                if (hp > maxHp)
+                    hp = maxHp;
                 removeItem(item);
                 return true;
             } else {
