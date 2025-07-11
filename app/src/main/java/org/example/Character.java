@@ -1,31 +1,38 @@
-package app.src.main.java.org.example;
+package org.example;
+
 import java.util.Random;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class Character {
-    private int hp;
+    protected int hp;
+    protected int maxHp; // 最大体力
     private String name;
     private int power;
-    private Random rand;
-    private ArrayList<Item> items;
-    private static final int MAX_HP = 1000;
-    private static final int MAX_POWER = 500;
-    private static final int MAX_ITEM_COUNT = 10;
+    protected Random rand;
+    // 今後の拡張用。現状はuseItemでのみ利用
+    protected ArrayList<Item> items;
+    protected int exp = 0; // 経験値
+    protected int nextExp = 10; // 次のレベルまでの経験値
+    protected int level = 1;
 
     Character() {
-        this.hp = 100;
-        this.name = "Monster";
-        this.power = 20;
-        // アイテムは空にする
-        this.items = new ArrayList<Item>();
+        this(20, 20, "Monster", 5);
+    }
+
+    Character(int hp, int maxHp, String name, int power) {
+        this.hp = hp;
+        this.maxHp = maxHp;
+        this.name = name;
+        this.power = power;
+        this.items = new ArrayList<>();
         this.rand = new Random();
     }
 
+    // 旧コンストラクタ互換
     Character(int hp, String name, int power) {
-        this.hp = hp;
-        this.name = name;
-        this.power = power;
+        this(hp, hp, name, power);
     }
 
     public int getHp() {
@@ -33,7 +40,56 @@ public class Character {
     }
 
     public void setHp(int hp) {
-        this.hp = hp;
+        this.hp = Math.min(hp, maxHp);
+    }
+
+    public int getMaxHp() {
+        return maxHp;
+    }
+
+    public void setMaxHp(int maxHp) {
+        this.maxHp = maxHp;
+        if (hp > maxHp)
+            hp = maxHp;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    public int getExp() {
+        return exp;
+    }
+
+    public int getNextExp() {
+        return nextExp;
+    }
+
+    public void gainExp(int amount) {
+        this.exp += amount;
+        while (exp >= nextExp) {
+            exp -= nextExp;
+            levelUp();
+        }
+    }
+
+    protected void levelUp() {
+        level++;
+        int hpIncrease = 5 + rand.nextInt(6); // 5~10増加
+        maxHp += hpIncrease;
+        hp = maxHp; // レベルアップ時は全回復
+        nextExp = (int) (nextExp * 1.5 + 5); // 次の必要経験値増加
+        // レベルアップ演出
+        System.out.println("\n==============================");
+        System.out.println("  ★★★ LEVEL UP!! ★★★");
+        System.out.println("    \u2605 Lv." + level + "  最大HP+" + hpIncrease + " \u2605");
+        System.out.println("==============================");
+        System.out.println("新たな力がみなぎる！ HPが全回復した！");
+        System.out.println();
     }
 
     public String getName() {
@@ -46,12 +102,8 @@ public class Character {
 
     // アイテムの追加に成功したらtrueを返す
     public boolean addItem(Item item) {
-        if (items.size() < MAX_ITEM_COUNT) {
-            items.add(item);
-            return true;
-        } else {
-            return false; // アイテムの数が上限に達している
-        }
+        items.add(item);
+        return true;
     }
 
     private boolean removeItem(Item item) {
@@ -64,33 +116,56 @@ public class Character {
     }
 
     public boolean useItem(Item item) {
-        // アイテムが存在するか確認
         if (items.contains(item)) {
-            // アイテムの種類に応じて処理を分岐
             if (item instanceof Potion) {
                 Potion potion = (Potion) item;
-                // ポーションの効果を適用
                 int healAmount = potion.getHealAmount();
                 hp += healAmount;
-                if (hp > MAX_HP) {
-                    hp = MAX_HP; // 最大HPを超えないようにする
-                }
-                removeItem(item); // アイテムを使用したので削除
-                return true; // 使用成功
+                if (hp > maxHp)
+                    hp = maxHp;
+                removeItem(item);
+                return true;
             } else if (item instanceof Sword) {
                 Sword sword = (Sword) item;
-                // 剣の効果を適用（例: 攻撃力を上げる）
                 power += sword.getAttackPower();
-                if (power > MAX_POWER) {
-                    power = MAX_POWER; // 最大攻撃力を超えないようにする
-                }
-                removeItem(item); // アイテムを使用したので削除
-                return true; // 使用成功
+                removeItem(item);
+                return true;
+            } else if (item instanceof Shield) {
+                // シールドの効果例: HP小回復
+                hp += 5;
+                if (hp > maxHp)
+                    hp = maxHp;
+                removeItem(item);
+                return true;
+            } else if (item instanceof MagicWand) {
+                MagicWand wand = (MagicWand) item;
+                power += wand.getMagicPower();
+                removeItem(item);
+                return true;
+            } else if (item instanceof Bow) {
+                Bow bow = (Bow) item;
+                power += bow.getAccuracy();
+                removeItem(item);
+                return true;
+            } else if (item instanceof Armor) {
+                Armor armor = (Armor) item;
+                hp += armor.getHpBoost();
+                if (hp > maxHp)
+                    hp = maxHp;
+                removeItem(item);
+                return true;
+            } else if (item instanceof Ring) {
+                // リングの効果例: HP自動回復
+                hp += 10;
+                if (hp > maxHp)
+                    hp = maxHp;
+                removeItem(item);
+                return true;
             } else {
-                return false; // 未対応のアイテムタイプ
+                return false;
             }
         } else {
-            return false; // アイテムが存在しない
+            return false;
         }
     }
 
@@ -111,6 +186,39 @@ public class Character {
         } else {
             return false;
         }
+    }
+
+    // プレイヤーやアイテムリストを受け取って特殊行動を行う（デフォルトは何もしない）
+    public void specialAction(Player player, List<Item> inventory) {
+        // 何もしない
+    }
+
+    // プレイヤーやバトル状況を受け取って特殊行動を行う（デフォルトは何もしない）
+    public void performSpecialAction(Player player, CommandBattle battle, int baseDamage) {
+        // デフォルトは通常攻撃のみ
+        if (baseDamage < 0)
+            baseDamage = 0;
+        System.out.println(getName() + "の攻撃！ あなたに" + baseDamage + "ダメージ！");
+        if (player.damage(baseDamage)) {
+            System.out.println("あなたは倒れてしまった... ゲームオーバー！");
+            System.out.println("1. タイトルに戻る  2. 終了");
+            String retryInput = battle.getScanner().nextLine();
+            if (retryInput.equals("1")) {
+                player.setHp(player.getMaxHp());
+                battle.mainMenu();
+            } else {
+                System.out.println("ゲームを終了します。");
+                System.exit(0);
+            }
+        }
+    }
+
+    // Scanner取得用（特殊行動のため）
+    public Scanner getScanner() {
+        // CommandBattleのscannerを返すためのダミー。実際はCommandBattle側でpublic Scanner
+        // scanner;にするか、getterを用意する。
+        // ここではCommandBattleにpublic Scanner getScanner()を追加する前提で呼び出し。
+        return null;
     }
 
 }

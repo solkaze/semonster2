@@ -1,4 +1,5 @@
-package app.src.main.java.org.example;
+package org.example;
+
 public class Item {
     private String name;
     private int value;
@@ -32,5 +33,9 @@ public class Item {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public int getSellValue() {
+        return value > 0 ? value : 10; // 0円アイテムは10Gで売却可
     }
 }
