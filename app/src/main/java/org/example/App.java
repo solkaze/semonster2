@@ -4,12 +4,8 @@
 package org.example;
 
 public class App {
-    public String getGreeting() {
-        return "Hello World!";
-    }
-
-    public static void main(String[] args) {
-      Slime slime1 = new Slime();
-
-    }
+  public static void main(String[] args) {
+    CommandBattle battle = new CommandBattle();
+    battle.mainMenu();
+  }
 }
