@@ -1,3 +1,11 @@
+<<<<<<< HEAD
+
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+=======
 # Ignore Gradle project-specific cache directory
 .gradle
 
@@ -42,3 +50,4 @@ out/
 
 # Generated files
 bin/
+>>>>>>> main
