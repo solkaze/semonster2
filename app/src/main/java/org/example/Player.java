@@ -12,6 +12,8 @@ public class Player extends Character {
     super(hp, maxHp, name, power);
   }
 
+  
+
   public int getMoney() {
     return money;
   }

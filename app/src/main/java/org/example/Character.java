@@ -40,6 +40,14 @@ public class Character {
     return hp;
   }
 
+  public int getPower() {
+    return power;
+  }
+
+  public void setPower(int power) {
+    this.power = power;
+  }
+
   public void setHp(int hp) {
     this.hp = Math.min(hp, maxHp);
   }
