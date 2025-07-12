@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.Player;
+
 public class PowerPotion extends Item {
   private int powerBoost;
 
@@ -24,6 +26,11 @@ public class PowerPotion extends Item {
         ", description='" + getDescription() + '\'' +
         ", powerBoost=" + powerBoost +
         '}';
+  }
+
+  public void use(Player player) {
+    // プレイヤーの攻撃力を増加させるロジックをここに実装
+    player.increaseAttackPower(powerBoost);
   }
 
 }
