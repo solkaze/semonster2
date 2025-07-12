@@ -4,8 +4,8 @@
 package org.example;
 
 public class App {
-  public static void main(String[] args) {
-    CommandBattle battle = new CommandBattle();
-    battle.mainMenu();
-  }
+    public static void main(String[] args) {
+        CommandBattle battle = new CommandBattle();
+        battle.mainMenu();
+    }
 }
